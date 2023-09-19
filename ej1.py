@@ -38,7 +38,7 @@ def learn(input, expected, weights, learn_rate):
     min_error = 1.0
     epsilon = 0.01
     perceptron = Perceptron(input, expected, weights, learn_rate)
-    while (min_error < epsilon and i < limit):
+    while (min_error > epsilon and i < limit):
         # get random mu
         mu = random.randint(1, len(input) - 1)
 
