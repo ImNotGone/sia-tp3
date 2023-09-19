@@ -1,9 +1,32 @@
 import random
+import sys
 from abstract_perceptron import Perceptron
 
 
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 4)]
+
+# loads input / output from csv file
+def load_data(file_name):
+    input = []
+    output = []
+
+    i = 0
+    # read from file mats of size rows x N and return them in an array
+    with open(file_name, "r") as data:
+        for data_row in data:
+            # skip first row
+            if i == 0:
+                i+=1
+                continue
+
+            row = []
+            pruned_row = data_row.replace('\n', "").split(',')
+            for data_col in pruned_row:
+                row += [float(data_col)]
+            input += [row[:3]]
+            output += [row[3]]
+    return (input, output)
 
 
 class LinearPerceptron(Perceptron):
@@ -15,14 +38,14 @@ class LinearPerceptron(Perceptron):
     def error(self):
         partial_err = 0
         for mu in range(len(self.input)):
-            partial_err += pow(self.activation(self.excitement(mu) - self.expected[mu]), 2)
+            partial_err += (self.activation(self.excitement(mu)) - self.expected[mu])** 2
         return 0.5 * partial_err
 
 
 def learn(input, expected, weights, learn_rate):
     i = 0
     limit = 10000
-    min_error = 1.0
+    min_error = sys.maxsize
     epsilon = 0.01
     perceptron = LinearPerceptron(input, expected, weights, learn_rate)
     input_len = len(input)
@@ -47,3 +70,14 @@ def learn(input, expected, weights, learn_rate):
         i += 1
     print(perceptron.weights, min_error)
     return
+
+file_name = "./data/ej2-conjunto.csv"
+(input, output) = load_data(file_name)
+for i in range(len(input)):
+    print(input[i], output[i])
+    print()
+
+weights = initialize_weights()
+learn_rate = 0.1
+learn(input, output, weights, learn_rate)
+
