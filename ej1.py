@@ -1,8 +1,8 @@
-from random import random
+import random
 import numpy as np
 
 def initialize_weights():
-    return [random.random(-1.0, 1.0) for _ in range(0, 3)]
+    return [random.uniform(-1.0, 1.0) for _ in range(0, 3)]
 
 x = [[-1, 1], [1, -1], [-1, -1], [1, 1]]
 y = [-1, -1, -1, 1]
@@ -15,7 +15,7 @@ class Perceptron:
         self.weigths = np.array(self._initialize_weights())
 
     def _initialize_weights(self):
-        return [random.random(-1.0, 1.0) for _ in range(0, 3)]
+        return [random.uniform(-1.0, 1.0) for _ in range(0, 3)]
 
     def exitement(self, mu):
         return np.dot(self.input[mu], self.weigths)
@@ -47,7 +47,7 @@ def learn():
     perceptron = Perceptron(x, y)
     while (min_error < epsilon and i < limit):
         # get random mu
-        mu = random.randInt(1, len(x) - 1)
+        mu = random.randint(1, len(x) - 1)
 
         # compute exitement
         exitement = perceptron.exitement(mu)
