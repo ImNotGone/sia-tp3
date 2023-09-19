@@ -10,7 +10,7 @@ y = [-1, -1, -1, 1]
 class Perceptron:
 
     def __init__(self, input, expected):
-        self.input = np.array(input)
+        self.input = np.array([input[i] + [1] for i in range(len(input))])
         self.expected = np.array(expected)
         self.weigths = np.array(self._initialize_weights())
 
@@ -64,3 +64,9 @@ def learn():
             min_error = error
         i += 1
     return
+
+perceptron = Perceptron(x, y)
+print(x, y)
+print(perceptron.input)
+print(perceptron.weigths)
+print(perceptron.exitement(0))
