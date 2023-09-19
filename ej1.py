@@ -9,16 +9,14 @@ y = [-1, -1, -1, 1]
 
 class Perceptron:
 
-    def __init__(self, input, expected):
+    def __init__(self, input, expected, weights, learn_rate):
         self.input = np.array([input[i] + [1] for i in range(len(input))])
         self.expected = np.array(expected)
-        self.weigths = np.array(self._initialize_weights())
-
-    def _initialize_weights(self):
-        return [random.uniform(-1.0, 1.0) for _ in range(0, 3)]
+        self.weights = np.array(weights)
+        self.learn_rate = learn_rate
 
     def exitement(self, mu):
-        return np.dot(self.input[mu], self.weigths)
+        return np.dot(self.input[mu], self.weights)
 
     # TODO: use ternary
     def activation(self, exitement):
@@ -26,10 +24,9 @@ class Perceptron:
             return 1
         return -1
 
-    # TODO: learning rate?
     def weights_update(self, activation, mu):
-        self.weigths += ((self.expected[mu] - activation) * self.input[mu])
-        return self.weigths
+        self.weights += (self.learn_rate *(self.expected[mu] - activation) * self.input[mu])
+        return self.weights
 
     # TODO: se puede comprimir?
     def error(self):
@@ -44,7 +41,7 @@ def learn():
     limit = 100
     min_error = 1.0
     epsilon = 0.01
-    perceptron = Perceptron(x, y)
+    perceptron = Perceptron(x, y, initialize_weights(), 0.1)
     while (min_error < epsilon and i < limit):
         # get random mu
         mu = random.randint(1, len(x) - 1)
@@ -65,8 +62,17 @@ def learn():
         i += 1
     return
 
-perceptron = Perceptron(x, y)
+x = [[4.7125, 2.8166]]
+y = [-1]
+# TODO: change order?
+# w1, w2, w0
+weights = [3.25, 4.3, -1.86]
+perceptron = Perceptron(x, y, weights, 0.1)
 print(x, y)
 print(perceptron.input)
-print(perceptron.weigths)
+print(perceptron.expected)
+print(perceptron.learn_rate)
+print(perceptron.weights)
+print(perceptron.exitement(0))
+print(perceptron.weights_update(perceptron.activation(perceptron.exitement(0)), 0))
 print(perceptron.exitement(0))
