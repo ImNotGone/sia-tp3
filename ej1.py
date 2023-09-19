@@ -40,7 +40,7 @@ def learn(input, expected, weights, learn_rate):
     perceptron = Perceptron(input, expected, weights, learn_rate)
     while (min_error > epsilon and i < limit):
         # get random mu
-        mu = random.randint(1, len(input) - 1)
+        mu = random.randint(0, len(input) - 1)
 
         # compute exitement
         exitement = perceptron.exitement(mu)
