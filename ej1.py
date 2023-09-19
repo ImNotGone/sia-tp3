@@ -10,7 +10,7 @@ y = [-1, -1, -1, 1]
 class Perceptron:
 
     def __init__(self, input, expected, weights, learn_rate):
-        self.input = np.array([input[i] + [1] for i in range(len(input))])
+        self.input = np.array([[1] + input[i] for i in range(len(input))])
         self.expected = np.array(expected)
         self.weights = np.array(weights)
         self.learn_rate = learn_rate
@@ -64,9 +64,7 @@ def learn():
 
 x = [[4.7125, 2.8166]]
 y = [-1]
-# TODO: change order?
-# w1, w2, w0
-weights = [3.25, 4.3, -1.86]
+weights = [-1.86, 3.25, 4.3]
 perceptron = Perceptron(x, y, weights, 0.1)
 print(x, y)
 print(perceptron.input)
