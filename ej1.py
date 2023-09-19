@@ -11,24 +11,20 @@ class Perceptron:
         self.weights = np.array(weights)
         self.learn_rate = learn_rate
 
-    def exitement(self, mu):
+    def excitement(self, mu):
         return np.dot(self.input[mu], self.weights)
 
-    # TODO: use ternary
-    def activation(self, exitement):
-        if(exitement > 0):
-            return 1
-        return -1
+    def activation(self, excitement):
+        return 1 if excitement > 0 else -1
 
     def weights_update(self, activation, mu):
         self.weights += (self.learn_rate *(self.expected[mu] - activation) * self.input[mu])
         return self.weights
 
-    # TODO: se puede comprimir?
     def error(self):
         count = 0
         for mu in range(len(self.input)):
-            if(self.activation(self.exitement(mu)) != self.expected[mu]):
+            if(self.activation(self.excitement(mu)) != self.expected[mu]):
                 count += 1
         return count / len(self.input)
 
@@ -38,15 +34,16 @@ def learn(input, expected, weights, learn_rate):
     min_error = 1.0
     epsilon = 0.01
     perceptron = Perceptron(input, expected, weights, learn_rate)
+    input_len = len(input)
     while (min_error > epsilon and i < limit):
         # get random mu
-        mu = random.randint(0, len(input) - 1)
+        mu = random.randint(0, input_len - 1)
 
-        # compute exitement
-        exitement = perceptron.exitement(mu)
+        # compute excitement
+        excitement = perceptron.excitement(mu)
 
         # compute activation
-        activation = perceptron.activation(exitement)
+        activation = perceptron.activation(excitement)
 
         # update_weights
         perceptron.weights_update(activation, mu)
@@ -75,7 +72,7 @@ print(perceptron.input)
 print(perceptron.expected)
 print(perceptron.learn_rate)
 print(perceptron.weights)
-print(perceptron.exitement(0))
-print(perceptron.weights_update(perceptron.activation(perceptron.exitement(0)), 0))
-print(perceptron.exitement(0))
+print(perceptron.excitement(0))
+print(perceptron.weights_update(perceptron.activation(perceptron.excitement(0)), 0))
+print(perceptron.excitement(0))
 
