@@ -32,10 +32,9 @@ def learn(input, expected, weights, learn_rate):
     i = 0
     limit = 10000
     min_error = 1.0
-    epsilon = 0.01
     perceptron = Perceptron(input, expected, weights, learn_rate)
     input_len = len(input)
-    while (min_error > epsilon and i < limit):
+    while (min_error > 0 and i < limit):
         # get random mu
         mu = random.randint(0, input_len - 1)
 
