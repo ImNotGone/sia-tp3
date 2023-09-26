@@ -98,3 +98,9 @@ def initialize_weights(hidden_layer_sizes, output_layer_size, input_layer_size):
 
 def compute_error(output, expected_output):
     return np.sum(np.power(output - expected_output, 2)) / 2
+
+def update_weights(weights, weight_delta):
+    for i in range(len(weights)):
+        weights[i] += weight_delta[i]
+
+def forward_propagation(input, weights, neuron_activation_function):
