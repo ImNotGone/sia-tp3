@@ -36,15 +36,16 @@ OptimizationMethod = Callable[[List[NDArray]], List[NDArray]]
 
 
 def get_optimization_method(config) -> OptimizationMethod:
-
     learning_rate = config["learning_rate"]
-    momentum = config["momentum"]
+    momentum_parameter = config["momentum"]
 
     optimization_method = config["method"]
 
-    if  optimization_method == "gradient_descent":
+    if optimization_method == "gradient_descent":
         return lambda weight_delta: gradient_descent(weight_delta, learning_rate)
     elif optimization_method == "momentum":
-        return lambda weight_delta: momentum(weight_delta, learning_rate, momentum)
+        return lambda weight_delta: momentum(
+            weight_delta, learning_rate, momentum_parameter
+        )
     else:
         raise Exception("Optimization method not found")

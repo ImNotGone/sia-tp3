@@ -1,7 +1,7 @@
 import json
 from activation_functions import get_activation_function
 from dataset_loaders import get_dataset
-from multilayer_perceptron import multilayer_perceptron
+from multilayer_perceptron import multilayer_perceptron, predict
 from optimization_methods import get_optimization_method
 
 
@@ -39,7 +39,17 @@ def main():
             optimization_method,
         )
 
+        for error in errors_in_epoch:
+            print(error)
 
+        for input, output in dataset:
+            print(
+                "Input: "
+                + str(input)
+                + " Output: "
+                + str(output)
+                + " Predicted: "
+                + str(predict(input, best_network, activation_function)))
 
 def get_batch_size(config, dataset_size) -> int:
     training_strategy = config["training_strategy"]

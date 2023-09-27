@@ -100,6 +100,12 @@ def create_numbers_identifier_dataset_with_noise() -> List[Tuple[NDArray, NDArra
 
     return dataset
 
+def create_nor_dataset() -> List[Tuple[NDArray, NDArray]]:
+    input = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
+    expected_output = np.array([[1], [1], [-1], [-1]])
+
+    return [(input[i], expected_output[i]) for i in range(len(input))]
+
 # ----- dataset generator -----
 
 def get_dataset(config) -> List[Tuple[NDArray, NDArray]]:
@@ -111,5 +117,7 @@ def get_dataset(config) -> List[Tuple[NDArray, NDArray]]:
         return create_numbers_identifier_dataset()
     elif dataset_type == "numbers_with_noise":
         return create_numbers_identifier_dataset_with_noise()
+    elif dataset_type == "nor":
+        return create_nor_dataset()
     else:
         raise Exception("Dataset not found")
