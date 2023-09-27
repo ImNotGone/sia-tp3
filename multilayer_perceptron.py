@@ -1,16 +1,20 @@
+from typing import List, Tuple
 import numpy as np
+from numpy._typing import NDArray
+
+from activation_functions import ActivationFunction
 
 
 def multilayer_perceptron(
-    data,
-    hidden_layer_sizes,
-    output_layer_size,
-    target_error,
-    max_epochs,
-    learning_rate,
-    batch_size,
-    neuron_activation_function,
-    neuron_activation_function_derivative,
+    data: Tuple[NDArray, NDArray],
+    hidden_layer_sizes: List[int],
+    output_layer_size: int,
+    target_error: float,
+    max_epochs: int,
+    learning_rate: float,
+    batch_size: int,
+    neuron_activation_function: ActivationFunction,
+    neuron_activation_function_derivative: ActivationFunction,
     optimization_method,
 ):
     # Initialize weights
@@ -20,7 +24,6 @@ def multilayer_perceptron(
 
     errors_in_epoch = []
 
-    error = None
     best_error = np.Infinity
     best_network = None
     epoch = 0
@@ -30,8 +33,8 @@ def multilayer_perceptron(
         training_set = np.random.choice(data, batch_size)
 
         # For each training set
-        weight_delta = []
-        error = 0
+        weight_delta: List[NDArray] = []
+        error = 0.0
 
         for input, expected_output in training_set:
             # Propagate the input through the network
@@ -76,7 +79,9 @@ def multilayer_perceptron(
 # Initialize weights
 # Hidden layer sizes is an array with the number of neurons in each layer
 # Output layer is the number of neurons in the output layer
-def initialize_weights(hidden_layer_sizes, output_layer_size, input_layer_size):
+def initialize_weights(
+    hidden_layer_sizes: List[int], output_layer_size: int, input_layer_size: int
+) -> List[NDArray]:
     # initialize weights
     weights = []
 
@@ -96,21 +101,26 @@ def initialize_weights(hidden_layer_sizes, output_layer_size, input_layer_size):
     return weights
 
 
-def compute_error(output, expected_output):
+def compute_error(output: NDArray, expected_output: NDArray) -> float:
     return np.sum(np.power(output - expected_output, 2)) / 2
 
-def update_weights(weights, weight_delta):
+
+def update_weights(weights: List[NDArray], weight_delta: List[NDArray]):
     for i in range(len(weights)):
         weights[i] += weight_delta[i]
 
-def forward_propagation(input, weights, neuron_activation_function):
+
+def forward_propagation(
+    input: NDArray,
+    weights: List[NDArray],
+    neuron_activation_function: ActivationFunction,
+) -> List[NDArray]:
     # Propagate the input through the network
     neuron_activations = []
 
     # Propagate the input through the network
     previous_layer_output = input
     for i in range(len(weights)):
-
         weighted_sum = np.dot(weights[i], previous_layer_output)
 
         activation = neuron_activation_function(weighted_sum)
@@ -118,7 +128,5 @@ def forward_propagation(input, weights, neuron_activation_function):
         neuron_activations += [activation]
 
         previous_layer_output = activation
-        
 
     return neuron_activations
-    
