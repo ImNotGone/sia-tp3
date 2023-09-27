@@ -3,6 +3,7 @@ import numpy as np
 from numpy._typing import NDArray
 
 from activation_functions import ActivationFunction
+from optimization_methods import OptimizationMethod
 
 
 def multilayer_perceptron(
@@ -15,7 +16,7 @@ def multilayer_perceptron(
     batch_size: int,
     neuron_activation_function: ActivationFunction,
     neuron_activation_function_derivative: ActivationFunction,
-    optimization_method,
+    optimization_method: OptimizationMethod,
 ):
     # Initialize weights
     current_network = initialize_weights(
