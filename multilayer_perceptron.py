@@ -94,15 +94,14 @@ def initialize_weights(
         # Generate random weights for each layer
         # if first layer
         if i == 0:
-            weights += [np.random.rand(hidden_layer_sizes[i], input_layer_size)]
+            weights += [np.random.uniform(-1,1,(hidden_layer_sizes[i], input_layer_size))]
         else:
             weights += [
-                np.random.rand(hidden_layer_sizes[i], hidden_layer_sizes[i - 1])
+                np.random.uniform(-1,1,(hidden_layer_sizes[i], hidden_layer_sizes[i - 1]))
             ]
 
     # add output layer
-    weights += [np.random.rand(output_layer_size, hidden_layer_sizes[-1])]
-
+    weights += [np.random.uniform(-1,1,(output_layer_size, hidden_layer_sizes[-1]))]
     return weights
 
 
