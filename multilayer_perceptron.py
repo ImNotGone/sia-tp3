@@ -133,10 +133,44 @@ def forward_propagation(
 
     return neuron_activations
 
+# Uso de diccionarios para guardar los deltas. Ver si esta bien.
 def backpropagation(
     neuron_activations: List[NDArray],
     expected_output: NDArray,
     network: List[NDArray],
     neuron_activation_function_derivative: ActivationFunction,
 ) -> List[NDArray]:
-    raise NotImplementedError
+    deltas = list()
+    for layer_idx in reversed(range(len(network))):
+        layer = network[layer_idx]
+        if layer_idx == len(network)-1:
+            for neuron_idx in range(len(layer)):
+                neuron = layer[neuron_idx]
+                neuron_activation=neuron_activations[-1][neuron_idx]
+                # ( Expected - Actual ) * derivada
+                # TODO chequear que estoy accediendo bien. 
+                delta = (expected_output[neuron_idx]-neuron_activation) * neuron_activation_function_derivative(neuron_activation)
+                deltas.append(delta)
+                # TODO ver si es correcto guardarse asi los deltas para utilizarlos dsp
+                neuron['delta'] = delta
+        else:
+            for neuron_idx_curr_layer in range(len(layer)):
+                
+                error=0.0
+            
+                # Sumatoria de deltas * weight respectivo hacia curr_neuron
+                for neuron_superior_layer in network[layer_idx+1]:
+                    #TODO chequear que estoy accediendo bien
+                    error+= neuron_superior_layer['delta'] * network[layer_idx+1][neuron_idx_curr_layer]
+                    
+                neuron=layer[neuron_idx_curr_layer]
+                neuron_activation=neuron_activations[layer_idx][neuron_idx]
+                #Sumatoria * derivada
+                delta = error * neuron_activation_function_derivative(neuron_activation)
+                neuron['delta'] = delta
+                deltas.append(delta)
+    return deltas
+
+
+
+
