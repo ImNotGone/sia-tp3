@@ -38,11 +38,9 @@ class FunctionPerceptron(Perceptron):
         return self.weights
 
 
-def learn(input, expected, weights, learn_rate, act_func, act_func_der, act_func_norm):
+def learn(input, expected, weights, learn_rate, epsilon, limit, act_func, act_func_der, act_func_norm):
     i = 0
-    limit = 100000
     min_error = sys.maxsize
-    epsilon = 0.001
     perceptron = FunctionPerceptron(input, expected, weights, learn_rate, act_func, act_func_der, act_func_norm)
     input_len = len(input)
     min_weights = []
@@ -75,6 +73,9 @@ with open("config.json") as config_file:
     config = json.load(config_file)
     file_name = config["ej2"]["data_path"]
     beta = config["ej2"]["beta"]
+    epsilon = config["ej2"]["epsilon"]
+    learn_rate = config["learning_rate"]
+    limit = config["iteration_limit"]
     (act_func, act_func_der, act_func_norm) = get_activation_function(config["ej2"]["activation_function"], beta)
 
 input = []
@@ -96,5 +97,4 @@ for i in range(len(input)):
     print()
 
 weights = initialize_weights()
-learn_rate = 0.1
-learn(input, output, weights, learn_rate, act_func, act_func_der, act_func_norm)
+learn(input, output, weights, learn_rate, epsilon, limit, act_func, act_func_der, act_func_norm)

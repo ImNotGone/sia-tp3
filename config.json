@@ -1,17 +1,21 @@
 {
+    "iteration_limit": 100000,
+    "learning_rate": 0.1,
+
     "ej1": {
+        "min_error": 1.00,
+        "training_set": "and",
         "input": {
-            "and": {
-                "x": [[-1, 1], [1, -1], [-1, -1], [1, 1]],
-                "y": [-1, -1, -1, 1]
-            },
-            "xor": {
-                "x": [[-1, 1], [1, -1], [-1, -1], [1, 1]],
-                "y": [1, 1, -1, -1]
-            }
+            "and": [[-1, 1], [1, -1], [-1, -1], [1, 1]],
+            "xor": [[-1, 1], [1, -1], [-1, -1], [1, 1]]
+        },
+        "expected": {
+            "and": [-1, -1, -1, 1],
+            "xor": [1, 1, -1, -1]
         }
     },
     "ej2": {
+        "epsilon": 0.01,
         "data_path": "./data/ej2-conjunto.csv",
         "activation_function": "logistic",
         "beta": 1
