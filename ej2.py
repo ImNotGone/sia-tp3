@@ -11,25 +11,7 @@ from activation_functions import get_activation_function
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 4)]
 
-
-class LinearPerceptron(Perceptron):
-
-    # In Linear Preceptron, the activation function is the identity
-    def activation(self, excitement):
-        return excitement
-
-    def error(self):
-        partial_err = 0.0
-        for mu in range(len(self.input)):
-            partial_err += (self.expected[mu] - self.activation(self.excitement(mu))) ** 2
-        return partial_err / 2
-
-    def weights_update(self, activation, mu):
-        self.weights += (self.learn_rate * (self.expected[mu] - activation) * self.input[mu])
-        return self.weights
-
-
-class NonLinearPerceptron(Perceptron):
+class FunctionPerceptron(Perceptron):
     def __init__(self, input, expected, weights, learn_rate, activation_function, activation_function_derivative,
                  activation_function_normalize):
         super().__init__(input, expected, weights, learn_rate)
@@ -61,7 +43,7 @@ def learn(input, expected, weights, learn_rate, act_func, act_func_der, act_func
     limit = 100000
     min_error = sys.maxsize
     epsilon = 0.001
-    perceptron = NonLinearPerceptron(input, expected, weights, learn_rate, act_func, act_func_der, act_func_norm)
+    perceptron = FunctionPerceptron(input, expected, weights, learn_rate, act_func, act_func_der, act_func_norm)
     input_len = len(input)
     min_weights = []
 
