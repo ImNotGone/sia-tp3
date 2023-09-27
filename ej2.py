@@ -1,6 +1,15 @@
 import random
 import sys
 from abstract_perceptron import Perceptron
+import numpy as np
+
+BETA = 1
+
+SIGMOID = (lambda x: 1 / (1 + np.exp(-2 * BETA * x)))
+SIGMOID_DERIVATIVE = (lambda x: 2 * BETA * SIGMOID(x) * (1 - SIGMOID(x)))
+
+TAN_H = (lambda x: np.tanh(x))
+TAN_H_DERIVATIVE = (lambda x: 1 - np.tanh(x) ** 2)
 
 
 def initialize_weights():
@@ -40,6 +49,25 @@ class LinearPerceptron(Perceptron):
         for mu in range(len(self.input)):
             partial_err += (self.activation(self.excitement(mu)) - self.expected[mu])** 2
         return 0.5 * partial_err
+    
+    def weights_update(self, activation, mu):
+        self.weights += (self.learn_rate * (self.expected[mu] - activation) * self.input[mu])
+        return self.weights
+    
+class NonLinearPerceptron(Perceptron):
+    
+    #we choose which function to use
+    def activation(self, excitement):
+        return TAN_H(excitement)
+    
+    def error(self):
+        partial_err = 0
+        for mu in range(len(self.input)):
+            partial_err += (self.activation(self.excitement(mu)) - self.expected[mu])** 2
+        return 0.5 * partial_err
+    
+    def weights_update(self, activation, mu):
+        
 
 
 def learn(input, expected, weights, learn_rate):

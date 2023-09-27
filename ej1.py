@@ -17,6 +17,10 @@ class SimplePerceptron(Perceptron):
             if (self.activation(self.excitement(mu)) != self.expected[mu]):
                 count += 1
         return count / len(self.input)
+    
+    def weights_update(self, activation, mu):
+        self.weights += (self.learn_rate * (self.expected[mu] - activation) * self.input[mu])
+        return self.weights
 
 
 def learn(input, expected, weights, learn_rate):

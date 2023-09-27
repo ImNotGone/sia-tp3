@@ -16,9 +16,9 @@ class Perceptron(ABC):
     def activation(self, excitement):
         pass
 
+    @abstractmethod
     def weights_update(self, activation, mu):
-        self.weights += (self.learn_rate * (self.expected[mu] - activation) * self.input[mu])
-        return self.weights
+        pass
 
     @abstractmethod
     def error(self):
