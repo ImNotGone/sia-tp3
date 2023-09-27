@@ -11,7 +11,7 @@ def multilayer_perceptron(
     batch_size,
     neuron_activation_function,
     neuron_activation_function_derivative,
-    descent_direction_function,
+    optimization_method,
 ):
     # Initialize weights
     current_network = initialize_weights(
@@ -49,7 +49,7 @@ def multilayer_perceptron(
                 current_network,
                 learning_rate,
                 neuron_activation_function_derivative,
-                descent_direction_function,
+                optimization_method,
             )
 
             # Add the weight delta to the total weight delta
