@@ -36,7 +36,7 @@ def multilayer_perceptron(
 
         # For each training set
         weight_delta: List[NDArray] = []
-        error = 0.0
+        #error = 0.0
 
         for input, expected_output in training_set:
             # Propagate the input through the network
@@ -45,7 +45,7 @@ def multilayer_perceptron(
             )
 
             # Compute the error
-            error += compute_error(neuron_activations[-1], expected_output)
+            #error += compute_error(neuron_activations[-1], expected_output)
 
             # Calculate the weight delta
             current_weight_delta = backpropagation(
@@ -70,11 +70,16 @@ def multilayer_perceptron(
 
         update_weights(current_network, weight_delta)
 
-        errors_in_epoch += [error]
 
         # If we have a better network, save it
-        if error < best_error:
-            best_error = error
+        new_error=0.0
+        for input, expected_output in data:
+            new_error+= compute_error(predict(input,current_network,neuron_activation_function),expected_output)
+            
+        errors_in_epoch += [new_error]
+        
+        if new_error < best_error:
+            best_error = new_error
             best_network = copy.deepcopy(current_network)
 
         epoch += 1
