@@ -132,3 +132,11 @@ def forward_propagation(
         previous_layer_output = activation
 
     return neuron_activations
+
+def backpropagation(
+    neuron_activations: List[NDArray],
+    expected_output: NDArray,
+    network: List[NDArray],
+    neuron_activation_function_derivative: ActivationFunction,
+) -> List[NDArray]:
+    raise NotImplementedError
