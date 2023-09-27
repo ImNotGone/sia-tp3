@@ -2,6 +2,7 @@ from typing import List, Tuple
 import numpy as np
 from numpy._typing import NDArray
 import random
+import copy
 
 from activation_functions import ActivationFunction
 from optimization_methods import OptimizationMethod
@@ -74,7 +75,7 @@ def multilayer_perceptron(
         # If we have a better network, save it
         if error < best_error:
             best_error = error
-            best_network = current_network
+            best_network = copy.deepcopy(current_network)
 
         epoch += 1
 
@@ -85,9 +86,10 @@ def multilayer_perceptron(
 # Hidden layer sizes is an array with the number of neurons in each layer
 # Output layer is the number of neurons in the output layer
 def initialize_weights(
-    hidden_layer_sizes: List[int], output_layer_size: int, input_layer_size: int
-) -> List[NDArray]:
-    # initialize weights
+    hidden_layer_sizes: List[int],
+    output_layer_size: int,
+    input_layer_size: int,
+) -> List[np.ndarray]:
     weights = []
 
     for i in range(len(hidden_layer_sizes)):
@@ -193,8 +195,11 @@ def backpropagation(
 
     return hidden_layer_weight_deltas
 
-    
-def predict(input: NDArray, network: List[NDArray], neuron_activation_function: ActivationFunction) -> NDArray:
+def predict(
+    input: NDArray,
+    network: List[NDArray],
+    neuron_activation_function: ActivationFunction,
+) -> NDArray:
     neuron_activations, neuron_excitements = forward_propagation(
         input, network, neuron_activation_function
     )
