@@ -44,7 +44,7 @@ def multilayer_perceptron(
             )
 
             # Compute the error
-            error += compute_error(neuron_excitements[-1], expected_output)
+            error += compute_error(neuron_activations[-1], expected_output)
 
             # Calculate the weight delta
             current_weight_delta = backpropagation(
