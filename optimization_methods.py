@@ -40,9 +40,11 @@ def get_optimization_method(config) -> OptimizationMethod:
     learning_rate = config["learning_rate"]
     momentum = config["momentum"]
 
-    if config["optimization_method"] == "gradient_descent":
+    optimization_method = config["method"]
+
+    if  optimization_method == "gradient_descent":
         return lambda weight_delta: gradient_descent(weight_delta, learning_rate)
-    elif config["optimization_method"] == "momentum":
+    elif optimization_method == "momentum":
         return lambda weight_delta: momentum(weight_delta, learning_rate, momentum)
     else:
         raise Exception("Optimization method not found")

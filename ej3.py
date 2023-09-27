@@ -1,31 +1,63 @@
+import json
+from activation_functions import get_activation_function
+from dataset_loaders import get_dataset
+from multilayer_perceptron import multilayer_perceptron
+from optimization_methods import get_optimization_method
 
-def load_numbers(file_name, rows):
-    arr = []
 
-    # read from file mats of size rows x N and return them in an array
-    with open(file_name, "r") as data:
-        mat = []
-        i = 0
-        for data_row in data:
-            row = []
+def main():
+    config_file = "config.json"
 
-            # remove spaces and \n
-            pruned_row = data_row.replace(" ", "").replace('\n', "")
-            for data_col in pruned_row:
-                row += [int(data_col)]
+    with open(config_file) as json_file:
+        config = json.load(json_file)["ej3"]
 
-            mat += [row]
-            i += 1
-            # if i loaded 'rows' rows -> load the matrix to the arr
-            if(i % rows == 0):
-                arr += [mat]
-                mat = []
+        dataset = get_dataset(config)
 
-        # load what remains
-        arr += [mat]
-    return arr
+        hidden_layer_sizes = config["hidden_layers"]
+        output_layer_size = len(dataset[0][1])
 
-file_name = "./data/ej3-digitos.txt"
-rows = 7
-numbers = load_numbers(file_name, rows)
+        target_error = config["target_error"]
+        max_epochs = config["max_epochs"]
 
+        batch_size = get_batch_size(config, len(dataset))
+
+        activation_function, activation_function_derivative = get_activation_function(
+            config["activation"]
+        )
+
+        optimization_method = get_optimization_method(config["optimization"])
+
+        best_network, errors_in_epoch = multilayer_perceptron(
+            dataset,
+            hidden_layer_sizes,
+            output_layer_size,
+            target_error,
+            max_epochs,
+            batch_size,
+            activation_function,
+            activation_function_derivative,
+            optimization_method,
+        )
+
+
+
+def get_batch_size(config, dataset_size) -> int:
+    training_strategy = config["training_strategy"]
+
+    if training_strategy == "batch":
+        return dataset_size
+    elif training_strategy == "mini_batch":
+        batch_size = config["batch_size"]
+
+        if batch_size > dataset_size:
+            raise Exception("Batch size is bigger than dataset size")
+
+        return batch_size
+    elif training_strategy == "online":
+        return 1
+    else:
+        raise Exception("Training strategy not found")
+
+    
+if __name__ == "__main__":
+    main()

@@ -43,11 +43,13 @@ ActivationFunction = Callable[[NDArray], NDArray]
 def get_activation_function(config) ->  Tuple[ActivationFunction, ActivationFunction]:
     beta = config["beta"]
 
-    if config["activation_function"] == "logistic":
+    activation_function = config["function"]
+
+    if activation_function == "logistic":
         return lambda x: logistic(x, beta), lambda x: logistic_derivative(x, beta)
-    elif config["activation_function"] == "tanh":
+    elif activation_function == "tanh":
         return lambda x: tanh(x, beta), lambda x: tanh_derivative(x, beta)
-    elif config["activation_function"] == "relu":
+    elif activation_function == "relu":
         return relu, relu_derivative
     else:
         raise Exception("Activation function not found")

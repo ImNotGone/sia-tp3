@@ -10,5 +10,23 @@
                 "y": {1, 1, -1, -1}
             }
         }
+    },
+    "ej3": {
+        "dataset": "even_numbers"
+        "activation": {
+            "function": "tanh",
+            "beta": 1
+        },
+        "optimization": {
+            "method": "gradient_descent",
+            "learning_rate": 0.1,
+            "momentum": 0.9
+        },
+        "hidden_layers": [10, 10, 10],
+        "target_error": 0.01,
+        "max_epochs": 1000,
+    
+        "training_strategy": "batch",
+        "batch_size": 1,
     }
 }

@@ -7,7 +7,7 @@ from optimization_methods import OptimizationMethod
 
 
 def multilayer_perceptron(
-    data: Tuple[NDArray, NDArray],
+    data: List[Tuple[NDArray, NDArray]],
     hidden_layer_sizes: List[int],
     output_layer_size: int,
     target_error: float,
