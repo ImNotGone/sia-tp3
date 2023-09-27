@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import numpy as np
 from numpy._typing import NDArray
-import  random
+import random
 
 from activation_functions import ActivationFunction
 from optimization_methods import OptimizationMethod
@@ -17,7 +17,7 @@ def multilayer_perceptron(
     neuron_activation_function: ActivationFunction,
     neuron_activation_function_derivative: ActivationFunction,
     optimization_method: OptimizationMethod,
-):
+) -> Tuple[List[NDArray], List[float]]:
     # Initialize weights
     current_network = initialize_weights(
         hidden_layer_sizes, output_layer_size, len(data[0][0])
@@ -39,16 +39,17 @@ def multilayer_perceptron(
 
         for input, expected_output in training_set:
             # Propagate the input through the network
-            neuron_activations = forward_propagation(
+            neuron_activations, neuron_excitements = forward_propagation(
                 input, current_network, neuron_activation_function
             )
 
             # Compute the error
-            error += compute_error(neuron_activations[-1], expected_output)
+            error += compute_error(neuron_excitements[-1], expected_output)
 
             # Calculate the weight delta
             current_weight_delta = backpropagation(
                 neuron_activations,
+                neuron_excitements,
                 expected_output,
                 current_network,
                 neuron_activation_function_derivative,
@@ -118,80 +119,85 @@ def forward_propagation(
     input: NDArray,
     weights: List[NDArray],
     neuron_activation_function: ActivationFunction,
-) -> List[NDArray]:
+) -> Tuple[List[NDArray], List[NDArray]]:
     # Propagate the input through the network
     neuron_activations = []
+    neuron_excitements = []
 
     # Propagate the input through the network
     previous_layer_output = input
     for i in range(len(weights)):
-        weighted_sum = np.dot(weights[i], previous_layer_output)
+        # Calculate the neuron excitement
+        # h^m = W^m * V^m-1 (MxN * Nx1 = Mx1)
+        neuron_excitement = np.dot(weights[i], previous_layer_output)
+        neuron_excitements += [neuron_excitement]
 
-        activation = neuron_activation_function(weighted_sum)
+        # Calculate the neuron activation
+        # V^m = θ(h^m)
+        neuron_activation = neuron_activation_function(neuron_excitement)
+        neuron_activations += [neuron_activation]
 
-        neuron_activations += [activation]
+        # Set the previous layer output to the current layer activation
+        previous_layer_output = neuron_activation
 
-        previous_layer_output = activation
+    return neuron_activations, neuron_excitements
 
-    return neuron_activations
 
 # Uso de diccionarios para guardar los deltas. Ver si esta bien.
 # Me parece que Weight_deltas se guarda desordenado
 def backpropagation(
     neuron_activations: List[NDArray],
+    neuron_excitements: List[NDArray],
     expected_output: NDArray,
     network: List[NDArray],
     neuron_activation_function_derivative: ActivationFunction,
     input: NDArray,
 ) -> List[NDArray]:
-    deltas = list()
-    weight_deltas = []
-    for layer_idx in reversed(range(len(network))):
-        layer = network[layer_idx]
-        if layer_idx == len(network)-1:
-            for neuron_idx in range(len(layer)):
-                neuron = layer[neuron_idx]
-                #Para calcular error de output
-                neuron_activation=neuron_activations[-1][neuron_idx]
-                
-                #Calculo h
-                prev_layer_output=neuron_activations[-2]
-                h=np.dot(layer[neuron_idx], prev_layer_output)
-                # ( Expected - Actual ) * derivada
-                # TODO chequear que estoy accediendo bien. 
-                delta = (expected_output[neuron_idx]-neuron_activation) * neuron_activation_function_derivative(h)
-                deltas.append(delta)
-                # TODO ver si es correcto guardarse asi los deltas para utilizarlos dsp
-                neuron['delta'] = delta
-                # La idea es guardar en weight_deltas lo que seria el deltaw SIN learning rate
-                # en prev_layer_output esta el vector de activaciones, y lo multiplico por el delta
-                weight_deltas += [delta * prev_layer_output]
-        else:
-            for neuron_idx_curr_layer in range(len(layer)):
-                
-                error=0.0
-            
-                # Sumatoria de deltas * weight respectivo hacia curr_neuron
-                for neuron_superior_layer in network[layer_idx+1]:
-                    #TODO chequear que estoy accediendo bien
-                    error+= neuron_superior_layer['delta'] * network[layer_idx+1][neuron_idx_curr_layer]
-                    
-                neuron=layer[neuron_idx_curr_layer]
-                ###neuron_activation=neuron_activations[layer_idx][neuron_idx]
-                #Calculo h. TODO ver si es correcto y si se puede pasar directamente weightedsums de forward
-                if(layer_idx==0):
-                    prev_layer_output=input
-                else:
-                    prev_layer_output=neuron_activations[layer_idx-1]
-                h=np.dot(layer[neuron_idx_curr_layer], prev_layer_output)
-                
-                #Sumatoria * derivada
-                delta = error * neuron_activation_function_derivative(h)
-                neuron['delta'] = delta
-                deltas.append(delta)
-                weight_deltas += [delta * prev_layer_output]
-    return weight_deltas
+    # Calculate the output layer delta
+    # δ^f = θ'(h) * (ζ- V^f)
+    output_layer_delta = neuron_activation_function_derivative(
+        neuron_excitements[-1]
+    ) * (expected_output - neuron_activations[-1])
 
+    # Calculate the weight delta for the output layer
+    # ΔW^m = η * δ^m * (V^m-1)
+    output_layer_weight_delta = np.dot(
+        output_layer_delta.reshape(-1, 1), neuron_activations[-2].reshape(1, -1)
+    )
 
+    # Calculate the hidden layer deltas
+    hidden_layer_deltas: List[NDArray] = [output_layer_delta]
+    hidden_layer_weight_deltas: List[NDArray] = [output_layer_weight_delta]
 
+    # Calculate the hidden layer deltas
+    for i in range(len(network) - 2, -1, -1):
+        # δ^m = θ'(h^m) * (W^m+1)^T * δ^m+1
+        hidden_layer_delta = neuron_activation_function_derivative(
+            neuron_excitements[i]
+        ) * np.dot(network[i + 1].T, hidden_layer_deltas[0])
 
+        hidden_layer_deltas = [hidden_layer_delta] + hidden_layer_deltas
+
+        # Calculate the weight delta for the hidden layer
+        # ΔW^m = η * δ^m * (V^m-1)
+        previous_layer_activation = (
+            input if i == 0 else neuron_activations[i - 1]
+        ).reshape(-1, 1)
+
+        hidden_layer_weight_delta = np.dot(
+            hidden_layer_delta.reshape(-1, 1), previous_layer_activation.reshape(1, -1)
+        )
+
+        hidden_layer_weight_deltas = [
+            hidden_layer_weight_delta
+        ] + hidden_layer_weight_deltas
+
+    return hidden_layer_weight_deltas
+
+    
+def predict(input: NDArray, network: List[NDArray], neuron_activation_function: ActivationFunction) -> NDArray:
+    neuron_activations, neuron_excitements = forward_propagation(
+        input, network, neuron_activation_function
+    )
+
+    return neuron_activations[-1]
