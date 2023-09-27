@@ -1,20 +1,16 @@
 import random
 import sys
+import json
+
 from abstract_perceptron import Perceptron
-import numpy as np
 import csv
 
-BETA = 1
-
-SIGMOID = (lambda x: 1 / (1 + np.exp(-2 * BETA * x)))
-SIGMOID_DERIVATIVE = (lambda x: 2 * BETA * SIGMOID(x) * (1 - SIGMOID(x)))
-
-TAN_H = (lambda x: np.tanh(x))
-TAN_H_DERIVATIVE = (lambda x: 1 - (np.tanh(x) ** 2))
+from activation_functions import get_activation_function
 
 
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 4)]
+
 
 class LinearPerceptron(Perceptron):
 
@@ -34,29 +30,41 @@ class LinearPerceptron(Perceptron):
 
 
 class NonLinearPerceptron(Perceptron):
+    def __init__(self, input, expected, weights, learn_rate, activation_function, activation_function_derivative,
+                 activation_function_normalize):
+        super().__init__(input, expected, weights, learn_rate)
+        self.activation_function = activation_function
+        self.activation_function_derivative = activation_function_derivative
+        self.activation_function_normalize = activation_function_normalize
 
     # we choose which function to use
     def activation(self, excitement):
-        return SIGMOID(excitement)
+        return self.activation_function(excitement)
 
     def error(self):
         partial_err = 0.0
         for mu in range(len(self.input)):
-            partial_err += (self.expected[mu] - self.activation(self.excitement(mu))) ** 2
+            partial_err += (self.activation_function_normalize(self.expected[mu]) - self.activation(
+                self.excitement(mu))) ** 2
         return partial_err / 2
 
     def weights_update(self, activation, mu):
-        self.weights += self.learn_rate * (self.expected[mu] - activation) * SIGMOID_DERIVATIVE(self.excitement(mu)) * self.input[mu]
+        self.weights += self.learn_rate * (
+                self.activation_function_normalize(
+                    self.expected[mu]) - activation) * self.activation_function_derivative(self.excitement(mu)) * \
+                        self.input[mu]
         return self.weights
 
 
-def learn(input, expected, weights, learn_rate):
+def learn(input, expected, weights, learn_rate, act_func, act_func_der, act_func_norm):
     i = 0
-    limit = 10000
+    limit = 100000
     min_error = sys.maxsize
     epsilon = 0.001
-    perceptron = NonLinearPerceptron(input, expected, weights, learn_rate)
+    perceptron = NonLinearPerceptron(input, expected, weights, learn_rate, act_func, act_func_der, act_func_norm)
     input_len = len(input)
+    min_weights = []
+
     while (min_error > epsilon and i < limit):
         # get random mu
         mu = random.randint(0, input_len - 1)
@@ -74,13 +82,19 @@ def learn(input, expected, weights, learn_rate):
         error = perceptron.error()
         if error < min_error:
             min_error = error
+            min_weights = perceptron.weights
         print(perceptron.weights, min_error)
         i += 1
     print(perceptron.weights, min_error)
-    return
+    return min_weights
 
 
-file_name = "./data/ej2-conjunto.csv"
+with open("config.json") as config_file:
+    config = json.load(config_file)
+    file_name = config["ej2"]["data_path"]
+    beta = config["ej2"]["beta"]
+    (act_func, act_func_der, act_func_norm) = get_activation_function(config["ej2"]["activation_function"], beta)
+
 input = []
 output = []
 with open(file_name) as csv_file:
@@ -101,4 +115,4 @@ for i in range(len(input)):
 
 weights = initialize_weights()
 learn_rate = 0.1
-learn(input, output, weights, learn_rate)
+learn(input, output, weights, learn_rate, act_func, act_func_der, act_func_norm)
