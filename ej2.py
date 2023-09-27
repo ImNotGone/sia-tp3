@@ -2,6 +2,7 @@ import random
 import sys
 from abstract_perceptron import Perceptron
 import numpy as np
+import csv
 
 BETA = 1
 
@@ -9,34 +10,11 @@ SIGMOID = (lambda x: 1 / (1 + np.exp(-2 * BETA * x)))
 SIGMOID_DERIVATIVE = (lambda x: 2 * BETA * SIGMOID(x) * (1 - SIGMOID(x)))
 
 TAN_H = (lambda x: np.tanh(x))
-TAN_H_DERIVATIVE = (lambda x: 1 - np.tanh(x) ** 2)
+TAN_H_DERIVATIVE = (lambda x: 1 - (np.tanh(x) ** 2))
 
 
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 4)]
-
-# loads input / output from csv file
-def load_data(file_name):
-    input = []
-    output = []
-
-    i = 0
-    # read from file mats of size rows x N and return them in an array
-    with open(file_name, "r") as data:
-        for data_row in data:
-            # skip first row
-            if i == 0:
-                i+=1
-                continue
-
-            row = []
-            pruned_row = data_row.replace('\n', "").split(',')
-            for data_col in pruned_row:
-                row += [float(data_col)]
-            input += [row[:3]]
-            output += [row[3]]
-    return (input, output)
-
 
 class LinearPerceptron(Perceptron):
 
@@ -45,37 +23,39 @@ class LinearPerceptron(Perceptron):
         return excitement
 
     def error(self):
-        partial_err = 0
+        partial_err = 0.0
         for mu in range(len(self.input)):
-            partial_err += (self.activation(self.excitement(mu)) - self.expected[mu])** 2
-        return 0.5 * partial_err
-    
+            partial_err += (self.expected[mu] - self.activation(self.excitement(mu))) ** 2
+        return partial_err / 2
+
     def weights_update(self, activation, mu):
         self.weights += (self.learn_rate * (self.expected[mu] - activation) * self.input[mu])
         return self.weights
-    
+
+
 class NonLinearPerceptron(Perceptron):
-    
-    #we choose which function to use
+
+    # we choose which function to use
     def activation(self, excitement):
-        return TAN_H(excitement)
-    
+        return SIGMOID(excitement)
+
     def error(self):
-        partial_err = 0
+        partial_err = 0.0
         for mu in range(len(self.input)):
-            partial_err += (self.activation(self.excitement(mu)) - self.expected[mu])** 2
-        return 0.5 * partial_err
-    
+            partial_err += (self.expected[mu] - self.activation(self.excitement(mu))) ** 2
+        return partial_err / 2
+
     def weights_update(self, activation, mu):
-        
+        self.weights += self.learn_rate * (self.expected[mu] - activation) * SIGMOID_DERIVATIVE(self.excitement(mu)) * self.input[mu]
+        return self.weights
 
 
 def learn(input, expected, weights, learn_rate):
     i = 0
     limit = 10000
     min_error = sys.maxsize
-    epsilon = 0.01
-    perceptron = LinearPerceptron(input, expected, weights, learn_rate)
+    epsilon = 0.001
+    perceptron = NonLinearPerceptron(input, expected, weights, learn_rate)
     input_len = len(input)
     while (min_error > epsilon and i < limit):
         # get random mu
@@ -99,8 +79,22 @@ def learn(input, expected, weights, learn_rate):
     print(perceptron.weights, min_error)
     return
 
+
 file_name = "./data/ej2-conjunto.csv"
-(input, output) = load_data(file_name)
+input = []
+output = []
+with open(file_name) as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=',')
+    line_count = 0
+    for row in csv_reader:
+        if line_count == 0:
+            line_count += 1
+            continue
+        else:
+            input += [[float(i) for i in row[:3]]]
+            output += [float(row[3])]
+            line_count += 1
+
 for i in range(len(input)):
     print(input[i], output[i])
     print()
@@ -108,4 +102,3 @@ for i in range(len(input)):
 weights = initialize_weights()
 learn_rate = 0.1
 learn(input, output, weights, learn_rate)
-

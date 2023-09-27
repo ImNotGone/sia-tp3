@@ -58,15 +58,15 @@ weights = initialize_weights()
 learn_rate = 0.1
 learn(input, expected, weights, learn_rate)
 
-input = [[4.7125, 2.8166]]
-expected = [-1]
-weights = [-1.86, 3.25, 4.3]
-perceptron = SimplePerceptron(input, expected, weights, learn_rate)
-print(input, expected)
-print(perceptron.input)
-print(perceptron.expected)
-print(perceptron.learn_rate)
-print(perceptron.weights)
-print(perceptron.excitement(0))
-print(perceptron.weights_update(perceptron.activation(perceptron.excitement(0)), 0))
-print(perceptron.excitement(0))
+# input = [[4.7125, 2.8166]]
+# expected = [-1]
+# weights = [-1.86, 3.25, 4.3]
+# perceptron = SimplePerceptron(input, expected, weights, learn_rate)
+# print(input, expected)
+# print(perceptron.input)
+# print(perceptron.expected)
+# print(perceptron.learn_rate)
+# print(perceptron.weights)
+# print(perceptron.excitement(0))
+# print(perceptron.weights_update(perceptron.activation(perceptron.excitement(0)), 0))
+# print(perceptron.excitement(0))
