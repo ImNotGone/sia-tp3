@@ -104,3 +104,21 @@ def update_weights(weights, weight_delta):
         weights[i] += weight_delta[i]
 
 def forward_propagation(input, weights, neuron_activation_function):
+    # Propagate the input through the network
+    neuron_activations = []
+
+    # Propagate the input through the network
+    previous_layer_output = input
+    for i in range(len(weights)):
+
+        weighted_sum = np.dot(weights[i], previous_layer_output)
+
+        activation = neuron_activation_function(weighted_sum)
+
+        neuron_activations += [activation]
+
+        previous_layer_output = activation
+        
+
+    return neuron_activations
+    
