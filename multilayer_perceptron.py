@@ -12,7 +12,6 @@ def multilayer_perceptron(
     output_layer_size: int,
     target_error: float,
     max_epochs: int,
-    learning_rate: float,
     batch_size: int,
     neuron_activation_function: ActivationFunction,
     neuron_activation_function_derivative: ActivationFunction,
@@ -51,7 +50,6 @@ def multilayer_perceptron(
                 neuron_activations,
                 expected_output,
                 current_network,
-                learning_rate,
                 neuron_activation_function_derivative,
             )
 
