@@ -52,6 +52,7 @@ def multilayer_perceptron(
                 expected_output,
                 current_network,
                 neuron_activation_function_derivative,
+                input,
             )
 
             # Add the weight delta to the total weight delta
@@ -135,25 +136,36 @@ def forward_propagation(
     return neuron_activations
 
 # Uso de diccionarios para guardar los deltas. Ver si esta bien.
+# Me parece que Weight_deltas se guarda desordenado
 def backpropagation(
     neuron_activations: List[NDArray],
     expected_output: NDArray,
     network: List[NDArray],
     neuron_activation_function_derivative: ActivationFunction,
+    input: NDArray,
 ) -> List[NDArray]:
     deltas = list()
+    weight_deltas = []
     for layer_idx in reversed(range(len(network))):
         layer = network[layer_idx]
         if layer_idx == len(network)-1:
             for neuron_idx in range(len(layer)):
                 neuron = layer[neuron_idx]
+                #Para calcular error de output
                 neuron_activation=neuron_activations[-1][neuron_idx]
+                
+                #Calculo h
+                prev_layer_output=neuron_activations[-2]
+                h=np.dot(layer[neuron_idx], prev_layer_output)
                 # ( Expected - Actual ) * derivada
                 # TODO chequear que estoy accediendo bien. 
-                delta = (expected_output[neuron_idx]-neuron_activation) * neuron_activation_function_derivative(neuron_activation)
+                delta = (expected_output[neuron_idx]-neuron_activation) * neuron_activation_function_derivative(h)
                 deltas.append(delta)
                 # TODO ver si es correcto guardarse asi los deltas para utilizarlos dsp
                 neuron['delta'] = delta
+                # La idea es guardar en weight_deltas lo que seria el deltaw SIN learning rate
+                # en prev_layer_output esta el vector de activaciones, y lo multiplico por el delta
+                weight_deltas += [delta * prev_layer_output]
         else:
             for neuron_idx_curr_layer in range(len(layer)):
                 
@@ -165,12 +177,20 @@ def backpropagation(
                     error+= neuron_superior_layer['delta'] * network[layer_idx+1][neuron_idx_curr_layer]
                     
                 neuron=layer[neuron_idx_curr_layer]
-                neuron_activation=neuron_activations[layer_idx][neuron_idx]
+                ###neuron_activation=neuron_activations[layer_idx][neuron_idx]
+                #Calculo h. TODO ver si es correcto y si se puede pasar directamente weightedsums de forward
+                if(layer_idx==0):
+                    prev_layer_output=input
+                else:
+                    prev_layer_output=neuron_activations[layer_idx-1]
+                h=np.dot(layer[neuron_idx_curr_layer], prev_layer_output)
+                
                 #Sumatoria * derivada
-                delta = error * neuron_activation_function_derivative(neuron_activation)
+                delta = error * neuron_activation_function_derivative(h)
                 neuron['delta'] = delta
                 deltas.append(delta)
-    return deltas
+                weight_deltas += [delta * prev_layer_output]
+    return weight_deltas
 
 
 
