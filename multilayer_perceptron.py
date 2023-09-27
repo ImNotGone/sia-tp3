@@ -52,7 +52,6 @@ def multilayer_perceptron(
                 current_network,
                 learning_rate,
                 neuron_activation_function_derivative,
-                optimization_method,
             )
 
             # Add the weight delta to the total weight delta
@@ -61,6 +60,10 @@ def multilayer_perceptron(
             else:
                 for i in range(len(weight_delta)):
                     weight_delta[i] += current_weight_delta[i]
+
+        # Average the weight delta and apply the optimization method
+        weight_delta = [delta / batch_size for delta in weight_delta]
+        weight_delta = optimization_method(weight_delta)
 
         update_weights(current_network, weight_delta)
 
