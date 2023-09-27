@@ -11,8 +11,9 @@
             }
         }
     },
+
     "ej3": {
-        "dataset": "even_numbers"
+        "dataset": "even_numbers",
         "activation": {
             "function": "tanh",
             "beta": 1
@@ -27,6 +28,6 @@
         "max_epochs": 1000,
     
         "training_strategy": "batch",
-        "batch_size": 1,
+        "batch_size": 1
     }
 }

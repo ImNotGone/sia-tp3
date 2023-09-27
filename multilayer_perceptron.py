@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import numpy as np
 from numpy._typing import NDArray
+import  random
 
 from activation_functions import ActivationFunction
 from optimization_methods import OptimizationMethod
@@ -19,7 +20,7 @@ def multilayer_perceptron(
 ):
     # Initialize weights
     current_network = initialize_weights(
-        hidden_layer_sizes, output_layer_size, len(data[0])
+        hidden_layer_sizes, output_layer_size, len(data[0][0])
     )
 
     errors_in_epoch = []
@@ -30,7 +31,7 @@ def multilayer_perceptron(
 
     while best_error > target_error and epoch < max_epochs:
         # Get a random training set
-        training_set = np.random.choice(data, batch_size)
+        training_set = random.sample(data, batch_size)
 
         # For each training set
         weight_delta: List[NDArray] = []
