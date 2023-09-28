@@ -98,7 +98,7 @@ points = np.array(input)
 colors = ['red' if val == -1 else 'green' for val in expected]
 
 # Create scatter plots for the points with colors
-scatter = ax.scatter(points[:, 0], points[:, 1], c=colors, marker='o')
+ax.scatter(points[:, 0], points[:, 1], c=colors, marker='o')
 
 
 # Animation function to update the line

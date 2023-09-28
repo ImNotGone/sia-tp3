@@ -1,11 +1,18 @@
 import random
 import sys
 import json
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 from abstract_perceptron import Perceptron
 import csv
 
 from activation_functions import get_activation_function
+
+m_values = []
+b_values = []
+c_values = []
 
 
 def initialize_weights():
@@ -63,9 +70,18 @@ def learn(input, expected, weights, learn_rate, epsilon, limit, act_func, act_fu
         if error < min_error:
             min_error = error
             min_weights = perceptron.weights
+            if i % 100 == 0:
+                m_values.append(-min_weights[1] / min_weights[3])
+                b_values.append(-min_weights[0] / min_weights[3])
+                c_values.append(-min_weights[2] / min_weights[3])
+
         print(perceptron.weights, min_error)
         i += 1
-    print(perceptron.weights, min_error)
+
+    for _ in range(20):
+        m_values.append(-min_weights[1] / min_weights[3])
+        b_values.append(-min_weights[0] / min_weights[3])
+        c_values.append(-min_weights[2] / min_weights[3])
     return min_weights
 
 
@@ -98,3 +114,44 @@ for i in range(len(input)):
 
 weights = initialize_weights()
 learn(input, output, weights, learn_rate, epsilon, limit, act_func, act_func_der, act_func_norm)
+
+# Initialize the 3D plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Define your arrays of "m," "c," and "b" values (modify these according to your data)
+
+# Create a grid of x and y values
+x = np.linspace(-10, 10, 100)
+y = np.linspace(-10, 10, 100)
+X, Y = np.meshgrid(x, y)
+
+# Initialize the surface plot
+Z = np.zeros_like(X)
+
+# Animation function to update the surface plot
+def animate(frame):
+    m = m_values[frame]
+    c = c_values[frame]
+    b = b_values[frame]
+    ax.clear()
+    Z = m * X + c * Y + b
+    ax.plot_surface(X, Y, Z, cmap='viridis')
+    ax.set_title(f'z = {m:.2f}x + {c:.2f}y + {b:.2f}')
+    # Define the points
+    points = np.array(input)
+    # Create scatter plots for the points with colors
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c='red', marker='o', s=20, alpha=0.7, edgecolors='k')
+    ax.set_zlim(-20, 20)
+    ax.view_init(elev=0, azim=5*frame)
+    return ax,
+
+# Set up the animation
+num_frames = len(m_values)
+ani = FuncAnimation(fig, animate, frames=num_frames, interval=200)
+
+# Save the animation as a GIF
+ani.save('animated_surface_plot.gif', writer='pillow', fps=5)
+
+plt.show()
+
