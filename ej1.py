@@ -11,6 +11,7 @@ from abstract_perceptron import Perceptron
 m_values = []
 b_values = []
 
+
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 3)]
 
@@ -26,13 +27,13 @@ class SimplePerceptron(Perceptron):
             if (self.activation(self.excitement(mu)) != self.expected[mu]):
                 count += 1
         return count / len(self.input)
-    
+
     def weights_update(self, activation, mu):
         self.weights += (self.learn_rate * (self.expected[mu] - activation) * self.input[mu])
         return self.weights
 
 
-def learn(input, expected, weights, learn_rate, limit, min_error, output_path):
+def learn(input, expected, weights, learn_rate, limit, min_error):
     i = 0
     perceptron = SimplePerceptron(input, expected, weights, learn_rate)
     input_len = len(input)
@@ -55,21 +56,20 @@ def learn(input, expected, weights, learn_rate, limit, min_error, output_path):
         if error < min_error:
             min_error = error
             min_weights = copy.copy(perceptron.weights)
-
-        m_values.append(-perceptron.weights[1]/perceptron.weights[2])
-        b_values.append(-perceptron.weights[0]/perceptron.weights[2])
+            m_values.append(-min_weights[1] / min_weights[2])
+            b_values.append(-min_weights[0] / min_weights[2])
 
         print(perceptron.weights, min_error)
         i += 1
-    print(perceptron.weights, min_error)
+
+    for _ in range(4):
+        m_values.append(-min_weights[1] / min_weights[2])
+        b_values.append(-min_weights[0] / min_weights[2])
     return min_weights
 
 
 with open("config.json") as config_file:
     config = json.load(config_file)
-
-    output_path = config["output_path"]
-
     training_set = config["ej1"]["training_set"]
     input = config["ej1"]["input"][training_set]
     expected = config["ej1"]["expected"][training_set]
@@ -78,11 +78,13 @@ with open("config.json") as config_file:
     limit = config["iteration_limit"]
 
 weights = initialize_weights()
-learn(input, expected, weights, learn_rate, limit, min_error, output_path)
+learn(input, expected, weights, learn_rate, limit, min_error)
+
 
 # Function to calculate the linear equation y = mx + b
 def linear_function(x, m, b):
     return m * x + b
+
 
 # Initialize plot and line objects
 fig, ax = plt.subplots()
@@ -98,6 +100,7 @@ colors = ['red' if val == -1 else 'green' for val in expected]
 # Create scatter plots for the points with colors
 scatter = ax.scatter(points[:, 0], points[:, 1], c=colors, marker='o')
 
+
 # Animation function to update the line
 def animate(frame):
     m = m_values[frame]
@@ -106,9 +109,10 @@ def animate(frame):
     ax.set_title(f'y = {m:.2f}x + {b:.2f}')
     return line,
 
+
 # Set up the animation
 num_frames = len(m_values)
-ani = FuncAnimation(fig, animate, frames=num_frames, interval=200)
+ani = FuncAnimation(fig, animate, frames=num_frames, interval=500)
 
 # Display the animation
 plt.xlabel('x')
@@ -117,12 +121,7 @@ plt.axhline(0, color='black', linewidth=0.5)
 plt.axvline(0, color='black', linewidth=0.5)
 plt.grid(color='gray', linestyle='--', linewidth=0.5)
 plt.ylim(-5, 5)  # Adjust the y-axis limits if needed
-plt.xlim(-1.5, 1.5)   # Adjust the x-axis limits if needed
+plt.xlim(-1.5, 1.5)  # Adjust the x-axis limits if needed
 # Save the animation as a GIF
-ani.save('animated_plot.gif', writer='pillow', fps=5)
+ani.save('animated_plot.gif', writer='pillow')
 plt.show()
-
-
-
-
-
