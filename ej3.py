@@ -21,8 +21,12 @@ def main():
 
         batch_size = get_batch_size(config, len(dataset))
 
-        activation_function, activation_function_derivative = get_activation_function(
-            config["activation"]
+        (
+            activation_function,
+            activation_function_derivative,
+            normalization_function,
+        ) = get_activation_function(
+            config["activation"]["function"], config["activation"]["beta"]
         )
 
         optimization_method = get_optimization_method(config["optimization"])
@@ -68,6 +72,6 @@ def get_batch_size(config, dataset_size) -> int:
     else:
         raise Exception("Training strategy not found")
 
-    
+
 if __name__ == "__main__":
     main()

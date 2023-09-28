@@ -6,6 +6,7 @@ from numpy._typing import NDArray
 
 # ----- Identity activation function -----
 
+
 def identity(x: NDArray) -> NDArray:
     return x
 
@@ -69,16 +70,26 @@ def relu_derivative(x: NDArray) -> NDArray:
 
 
 # ----- activation function generator -----
-ActivationFunction = Callable[[NDArray], NDArray]
+ActivationFunction = Callable[[NDArray | float], NDArray | float]
 
 
-def get_activation_function(activation_function, beta) -> Tuple[ActivationFunction, ActivationFunction, ActivationFunction]:
+def get_activation_function(
+    activation_function: str, beta: float = 1
+) -> Tuple[ActivationFunction, ActivationFunction, ActivationFunction]:
     if activation_function == "logistic":
-        return lambda x: logistic(x, beta), lambda x: logistic_derivative(x, beta), logistic_normalize
+        return (
+            lambda x: logistic(x, beta),
+            lambda x: logistic_derivative(x, beta),
+            logistic_normalize,
+        )
     elif activation_function == "tanh":
-        return lambda x: tanh(x, beta), lambda x: tanh_derivative(x, beta), tanh_normalize
+        return (
+            lambda x: tanh(x, beta),
+            lambda x: tanh_derivative(x, beta),
+            tanh_normalize,
+        )
     # elif activation_function == "relu":
-    #     return relu, relu_derivative
+         # return relu, relu_derivative
     elif activation_function == "identity":
         return identity, identity_derivative, identity_normalize
     else:
