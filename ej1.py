@@ -1,6 +1,15 @@
+import copy
+import os
 import random
 import json
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from abstract_perceptron import Perceptron
+
+# Define your matrix of "m" and "b" values (modify this according to your data)
+m_values = []
+b_values = []
 
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 3)]
@@ -23,7 +32,7 @@ class SimplePerceptron(Perceptron):
         return self.weights
 
 
-def learn(input, expected, weights, learn_rate, limit, min_error):
+def learn(input, expected, weights, learn_rate, limit, min_error, output_path):
     i = 0
     perceptron = SimplePerceptron(input, expected, weights, learn_rate)
     input_len = len(input)
@@ -45,14 +54,22 @@ def learn(input, expected, weights, learn_rate, limit, min_error):
         error = perceptron.error()
         if error < min_error:
             min_error = error
-            min_weights = perceptron.weights
+            min_weights = copy.copy(perceptron.weights)
+
+        m_values.append(-perceptron.weights[1]/perceptron.weights[2])
+        b_values.append(-perceptron.weights[0]/perceptron.weights[2])
+
         print(perceptron.weights, min_error)
         i += 1
     print(perceptron.weights, min_error)
     return min_weights
 
+
 with open("config.json") as config_file:
     config = json.load(config_file)
+
+    output_path = config["output_path"]
+
     training_set = config["ej1"]["training_set"]
     input = config["ej1"]["input"][training_set]
     expected = config["ej1"]["expected"][training_set]
@@ -61,17 +78,51 @@ with open("config.json") as config_file:
     limit = config["iteration_limit"]
 
 weights = initialize_weights()
-learn(input, expected, weights, learn_rate, limit, min_error)
+learn(input, expected, weights, learn_rate, limit, min_error, output_path)
 
-# input = [[4.7125, 2.8166]]
-# expected = [-1]
-# weights = [-1.86, 3.25, 4.3]
-# perceptron = SimplePerceptron(input, expected, weights, learn_rate)
-# print(input, expected)
-# print(perceptron.input)
-# print(perceptron.expected)
-# print(perceptron.learn_rate)
-# print(perceptron.weights)
-# print(perceptron.excitement(0))
-# print(perceptron.weights_update(perceptron.activation(perceptron.excitement(0)), 0))
-# print(perceptron.excitement(0))
+# Function to calculate the linear equation y = mx + b
+def linear_function(x, m, b):
+    return m * x + b
+
+# Initialize plot and line objects
+fig, ax = plt.subplots()
+x_data = np.linspace(-1.5, 1.5, 200)
+line, = ax.plot(x_data, linear_function(x_data, 0, 0))
+
+# Define the points
+points = np.array(input)
+
+# Define the color array based on expected
+colors = ['red' if val == -1 else 'green' for val in expected]
+
+# Create scatter plots for the points with colors
+scatter = ax.scatter(points[:, 0], points[:, 1], c=colors, marker='o')
+
+# Animation function to update the line
+def animate(frame):
+    m = m_values[frame]
+    b = b_values[frame]
+    line.set_ydata(linear_function(x_data, m, b))
+    ax.set_title(f'y = {m:.2f}x + {b:.2f}')
+    return line,
+
+# Set up the animation
+num_frames = len(m_values)
+ani = FuncAnimation(fig, animate, frames=num_frames, interval=200)
+
+# Display the animation
+plt.xlabel('x')
+plt.ylabel('y')
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+plt.ylim(-5, 5)  # Adjust the y-axis limits if needed
+plt.xlim(-1.5, 1.5)   # Adjust the x-axis limits if needed
+# Save the animation as a GIF
+ani.save('animated_plot.gif', writer='pillow', fps=5)
+plt.show()
+
+
+
+
+
