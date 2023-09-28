@@ -73,7 +73,7 @@ def create_numbers_identifier_dataset() -> List[Tuple[NDArray, NDArray]]:
     # The input is a 7x5 matrix that represents a number
     # The expected output are 10 neurons,
     # Each neuron represents a number from 0 to 9
-    # The expected output neuron is 
+    # The expected output neuron is
     # 1 if the number is the same as the index of the neuron, 0 otherwise
     dataset = []
 
@@ -89,6 +89,7 @@ def create_numbers_identifier_dataset() -> List[Tuple[NDArray, NDArray]]:
 
     return dataset
 
+
 def create_numbers_identifier_dataset_with_noise() -> List[Tuple[NDArray, NDArray]]:
     dataset = create_numbers_identifier_dataset()
 
@@ -100,13 +101,26 @@ def create_numbers_identifier_dataset_with_noise() -> List[Tuple[NDArray, NDArra
 
     return dataset
 
-def create_nor_dataset() -> List[Tuple[NDArray, NDArray]]:
+
+def create_xor_dataset() -> List[Tuple[NDArray, NDArray]]:
+    input = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
+    expected_output = np.array([[1], [1], [-1], [-1]])
+
+    # Output is 1 0 for 1, 0 1 for -1
+    expected_output = np.where(
+        expected_output == 1, np.array([[1, 0]]), np.array([[0, 1]])
+    )
+
+    return [(input[i], expected_output[i]) for i in range(len(input))]
+
+def create_xor_dataset_zero_one() -> List[Tuple[NDArray, NDArray]]:
     input = np.array([[0, 1], [1, 0], [0, 0], [1, 1]])
     expected_output = np.array([[1], [1], [0], [0]])
 
     return [(input[i], expected_output[i]) for i in range(len(input))]
 
 # ----- dataset generator -----
+
 
 def get_dataset(config) -> List[Tuple[NDArray, NDArray]]:
     dataset_type = config["dataset"]
@@ -117,7 +131,9 @@ def get_dataset(config) -> List[Tuple[NDArray, NDArray]]:
         return create_numbers_identifier_dataset()
     elif dataset_type == "numbers_with_noise":
         return create_numbers_identifier_dataset_with_noise()
-    elif dataset_type == "nor":
-        return create_nor_dataset()
+    elif dataset_type == "xor":
+        return create_xor_dataset()
+    elif dataset_type == "xor_zero_one":
+        return create_xor_dataset_zero_one()
     else:
         raise Exception("Dataset not found")
