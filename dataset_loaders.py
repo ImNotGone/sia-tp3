@@ -101,8 +101,8 @@ def create_numbers_identifier_dataset_with_noise() -> List[Tuple[NDArray, NDArra
     return dataset
 
 def create_nor_dataset() -> List[Tuple[NDArray, NDArray]]:
-    input = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
-    expected_output = np.array([[1], [1], [-1], [-1]])
+    input = np.array([[0, 1], [1, 0], [0, 0], [1, 1]])
+    expected_output = np.array([[1], [1], [0], [0]])
 
     return [(input[i], expected_output[i]) for i in range(len(input))]
 
