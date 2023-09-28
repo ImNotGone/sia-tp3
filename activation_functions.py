@@ -3,6 +3,21 @@ from typing import Tuple
 import numpy as np
 from numpy._typing import NDArray
 
+
+# ----- Identity activation function -----
+
+def identity(x: NDArray) -> NDArray:
+    return x
+
+
+def identity_derivative(x: NDArray) -> NDArray:
+    return np.ones(x.shape)
+
+
+def identity_normalize(x: NDArray | float) -> NDArray | float:
+    return x
+
+
 # ----- Logistic activation function -----
 
 
@@ -14,6 +29,15 @@ def logistic_derivative(x: NDArray, beta: float) -> NDArray:
     return 2 * beta * logistic(x, beta) * (1 - logistic(x, beta))
 
 
+def logistic_normalize(x: NDArray | float) -> NDArray | float:
+    if isinstance(x, float):
+        return x / abs(x)
+
+    max_val = max(x)
+    min_val = min(x)
+    return (x - min_val) / (max_val - min_val)
+
+
 # ----- Hyperbolic tangent activation function -----
 
 
@@ -23,6 +47,14 @@ def tanh(x: NDArray, beta: float) -> NDArray:
 
 def tanh_derivative(x: NDArray, beta: float) -> NDArray:
     return beta * (1 - np.power(tanh(x, beta), 2))
+
+
+def tanh_normalize(x: NDArray | float) -> NDArray | float:
+    if isinstance(x, float):
+        return x / abs(x)
+
+    max_val = max(abs(x))
+    return x / max_val
 
 
 # ----- relu activation function -----
@@ -40,16 +72,14 @@ def relu_derivative(x: NDArray) -> NDArray:
 ActivationFunction = Callable[[NDArray], NDArray]
 
 
-def get_activation_function(config) ->  Tuple[ActivationFunction, ActivationFunction]:
-    beta = config["beta"]
-
-    activation_function = config["function"]
-
+def get_activation_function(activation_function, beta) -> Tuple[ActivationFunction, ActivationFunction, ActivationFunction]:
     if activation_function == "logistic":
-        return lambda x: logistic(x, beta), lambda x: logistic_derivative(x, beta)
+        return lambda x: logistic(x, beta), lambda x: logistic_derivative(x, beta), logistic_normalize
     elif activation_function == "tanh":
-        return lambda x: tanh(x, beta), lambda x: tanh_derivative(x, beta)
-    elif activation_function == "relu":
-        return relu, relu_derivative
+        return lambda x: tanh(x, beta), lambda x: tanh_derivative(x, beta), tanh_normalize
+    # elif activation_function == "relu":
+    #     return relu, relu_derivative
+    elif activation_function == "identity":
+        return identity, identity_derivative, identity_normalize
     else:
         raise Exception("Activation function not found")

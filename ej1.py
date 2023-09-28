@@ -1,6 +1,6 @@
 import random
+import json
 from abstract_perceptron import Perceptron
-
 
 def initialize_weights():
     return [random.uniform(-1.0, 1.0) for _ in range(0, 3)]
@@ -23,12 +23,11 @@ class SimplePerceptron(Perceptron):
         return self.weights
 
 
-def learn(input, expected, weights, learn_rate):
+def learn(input, expected, weights, learn_rate, limit, min_error):
     i = 0
-    limit = 10000
-    min_error = 1.0
     perceptron = SimplePerceptron(input, expected, weights, learn_rate)
     input_len = len(input)
+    min_weights = []
     while (min_error > 0 and i < limit):
         # get random mu
         mu = random.randint(0, input_len - 1)
@@ -46,17 +45,23 @@ def learn(input, expected, weights, learn_rate):
         error = perceptron.error()
         if error < min_error:
             min_error = error
+            min_weights = perceptron.weights
         print(perceptron.weights, min_error)
         i += 1
     print(perceptron.weights, min_error)
-    return
+    return min_weights
 
+with open("config.json") as config_file:
+    config = json.load(config_file)
+    training_set = config["ej1"]["training_set"]
+    input = config["ej1"]["input"][training_set]
+    expected = config["ej1"]["expected"][training_set]
+    min_error = config["ej1"]["min_error"]
+    learn_rate = config["learning_rate"]
+    limit = config["iteration_limit"]
 
-input = [[-1, 1], [1, -1], [-1, -1], [1, 1]]
-expected = [-1, -1, -1, 1]
 weights = initialize_weights()
-learn_rate = 0.1
-learn(input, expected, weights, learn_rate)
+learn(input, expected, weights, learn_rate, limit, min_error)
 
 # input = [[4.7125, 2.8166]]
 # expected = [-1]
